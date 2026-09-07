@@ -59,6 +59,8 @@ jobs:
         env:
           KUBECONFIG: ${{ env.KUBECONFIG }}
         run: |
+          kubectl apply -f deploy.yaml
+
           kubectl set image deployment/barcode-client \
             barcode-client="${REGISTRY}/${IMAGE_NAME}:${GITHUB_SHA}" \
             -n default
