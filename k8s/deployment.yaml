@@ -15,9 +15,12 @@ spec:
       labels:
         app: barcode-client
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: barcode-client
           image: ghcr.io/beep-software/barcode-client:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
           resources:
