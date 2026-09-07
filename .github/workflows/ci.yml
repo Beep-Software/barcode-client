@@ -63,7 +63,7 @@ jobs:
         env:
           KUBECONFIG: /home/dobowe01/.kube/config
         run: |
-          kubectl apply -f k8s/deploy.yaml
+          kubectl apply -f k8s/deployment.yaml
 
       - name: Deploy to k3s
         if: github.event_name == 'push'
