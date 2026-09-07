@@ -14,9 +14,11 @@ env:
 jobs:
   build-and-deploy:
     runs-on: self-hosted
+
     permissions:
       contents: read
       packages: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,23 +49,32 @@ jobs:
         run: |
           IMAGE=${REGISTRY}/${IMAGE_NAME}
           TAG=${GITHUB_SHA}
+
           docker build \
             -t $IMAGE:$TAG \
             -t $IMAGE:latest \
             .
+
           docker push $IMAGE:$TAG
           docker push $IMAGE:latest
+
+      - name: Apply Kubernetes manifests
+        if: github.event_name == 'push'
+        env:
+          KUBECONFIG: /home/dobowe01/.kube/config
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
 
       - name: Deploy to k3s
         if: github.event_name == 'push'
         env:
           KUBECONFIG: ${{ env.KUBECONFIG }}
         run: |
-          kubectl apply -f deploy.yaml
-
           kubectl set image deployment/barcode-client \
             barcode-client="${REGISTRY}/${IMAGE_NAME}:${GITHUB_SHA}" \
             -n default
+
           kubectl rollout status deployment/barcode-client \
             --timeout=5m \
             -n default
